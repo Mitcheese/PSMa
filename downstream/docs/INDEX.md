@@ -26,12 +26,6 @@
 - `scripts/tools/remap_ckpt_keys.py`
 - `scripts/tools/res_index2names.py`
 
-## ESM utilities
-- Not present in this repo snapshot.
-
-## SLURM jobs
-- Not present in this repo snapshot.
-
 ## Core library
 - `src/ppi/paths.py`: path resolution from config/env
 

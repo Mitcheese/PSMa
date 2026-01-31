@@ -13,7 +13,6 @@
   - `builder.py`: dataset/model/optimizer/scheduler builder
 - `src/psma_pretrain/models/`
   - `point_mae.py`: Point-MAE model
-  - `point_mae_2.py`: alternative model variant
 - `src/psma_pretrain/datasets/`
   - `embedding_dataset.py`: protein embedding dataset
   - `data_process.py`: PLY to embedding generation

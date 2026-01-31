@@ -1,9 +1,9 @@
 # PPI Binary Segmentation (DGCNN)
 
-This repository trains and evaluates protein-protein interaction (PPI) binary segmentation on surface point clouds, with an optional pretrained global embedding (e.g., ESM).
+This repository trains and evaluates protein-protein interaction (PPI) binary segmentation on surface point clouds, with an optional pretrained global embedding.
 
 ## Repository layout
-- `scripts/` executable entry points (train / infer / eval / preprocess / esm / viz)
+- `scripts/` executable entry points (train / infer / eval / preprocess / viz)
 - `src/` shared utilities (path config helpers)
 - `configs/` path configuration
 - `data/` datasets and large artifacts (not tracked in this repo)
