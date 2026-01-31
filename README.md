@@ -11,6 +11,3 @@ Monorepo with two components:
 - Downstream docs: `downstream/README.md`
 - Repo index: `docs/INDEX.md`
 
-## Repo hygiene
-- Large datasets are excluded from this repo. Use environment variables or external paths.
-- Build artifacts and outputs are ignored by `.gitignore`.
