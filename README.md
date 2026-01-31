@@ -3,7 +3,7 @@
 Monorepo with two components:
 
 - `pretrain/`: pretraining + finetuning pipeline (Point-MAE variants)
-- `downstream/`: downstream tasks (PPI)
+- `downstream/`: downstream tasks
 
 ## Quick navigation
 
