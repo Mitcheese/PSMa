@@ -9,5 +9,3 @@ Monorepo with two components:
 
 - Pretrain docs: `pretrain/README.md`
 - Downstream docs: `downstream/README.md`
-- Repo index: `docs/INDEX.md`
-
