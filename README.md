@@ -2,7 +2,7 @@
 
 Monorepo with two components:
 
-- `pretrain/`: pretraining + finetuning pipeline (Point-MAE variants)
+- `pretrain/`: pretraining + finetuning pipeline
 - `downstream/`: downstream tasks
 
 ## Quick navigation
