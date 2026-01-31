@@ -1,0 +1,47 @@
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# Env / secrets
+.env
+.env.*
+*.pem
+*.key
+credentials.*
+secrets.*
+**/*secret*
+**/*token*
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Logs
+*.log
+
+# Data / Models (adjust as needed)
+data/
+datasets/
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.h5
+*.pkl

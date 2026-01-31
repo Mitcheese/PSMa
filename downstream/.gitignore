@@ -1,0 +1,21 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# outputs
+outputs/
+
+# interim data
+data/interim/
+
+# logs
+*.out
+*.err
+
+# local envs
+.venv/
+.env
+
+# notebooks checkpoints
+.ipynb_checkpoints/

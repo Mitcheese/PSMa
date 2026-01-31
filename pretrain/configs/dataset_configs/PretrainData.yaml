@@ -1,0 +1,3 @@
+NAME: EmbeddingDataset
+DATA_PATH: ${PSMA_DATA_ROOT}/protein_embedding
+USE_NORMALS: TRUE

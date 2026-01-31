@@ -1,0 +1,4 @@
+NAME: EmbeddingDataset
+DATA_PATH: ${PSMA_DATA_ROOT}/Ogt_pdb/data_embeddings/train_iface
+CSV_FILE: ${PSMA_DATA_ROOT}/Ogt_pdb/data_embeddings/OgtTrain.csv
+USE_NORMALS: TRUE
