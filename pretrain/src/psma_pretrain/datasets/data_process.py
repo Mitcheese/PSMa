@@ -186,7 +186,7 @@ def process_and_save_ply_files_torch(directory, save_directory, num_samples, k):
                 print(f"Error processing {filename}: {e}")
             
 if __name__ == '__main__':
-    data_root = os.environ.get('PSMA_DATA_ROOT', '/inspurfs/group/gaoshh/chenqy/pro_rna')
+    data_root = os.environ.get('PSMA_DATA_ROOT', 'data')
     surface_dir = os.path.join(data_root, 'protein_surface')
     embedding_dir = os.path.join(data_root, 'protein_embedding')
     process_and_save_ply_files(surface_dir, embedding_dir, num_samples=128, k=64)

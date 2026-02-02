@@ -1,5 +1,5 @@
 {
-  "data_root": "data/DeepPPIPS",
+  "data_root": "data/dataset",
   "embedding_dir": "data/embeddings",
   "vertex_residue_dir": "data/vertex_residue",
   "interim_preprocess_dir": "data/interim/preprocess",

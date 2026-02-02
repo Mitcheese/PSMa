@@ -46,6 +46,7 @@ class Cfg:
     PRE_FUSION = "concat"
     
     DATA_ROOT = str(get_data_root())
+    DATASET_TAG = Path(DATA_ROOT).name or "dataset"
     TRAIN_DIR = "labeled_ply_train"
     VAL_DIR   = "labeled_ply_test"
     TEST_DIR  = "labeled_ply_test"
@@ -67,11 +68,11 @@ class Cfg:
         OUTPUTS_ROOT
         / "runs"
         / "binary_dgcnn_pretrain"
-        / "DeepPPIPS"
+        / DATASET_TAG
         / datetime.now(ZoneInfo("Asia/Shanghai")).strftime("%Y%m%d-%H%M%S")
     )
     STATS_CACHE = str(
-        OUTPUTS_ROOT / "runs" / "binary_dgcnn_pretrain" / "DeepPPIPS" / "stats.json"
+        OUTPUTS_ROOT / "runs" / "binary_dgcnn_pretrain" / DATASET_TAG / "stats.json"
     )
     PRED_PLY_DIR = os.path.join(SAVE_DIR, "test_pred_ply")
     PRED_SUFFIX  = "_pred"

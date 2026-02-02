@@ -10,18 +10,18 @@ This repository trains and evaluates protein-protein interaction (PPI) binary se
 
 ## Path configuration
 Default paths are defined in `configs/paths.json`. You can override with environment variables:
-- `PPI_DATA_ROOT` (default: `data/DeepPPIPS`)
-- `PPI_EMB_DIR` (default: `data/embeddings`)
-- `PPI_OUTPUTS_DIR` (default: `outputs`)
-- `PPI_VERTEX_RESIDUE_DIR` (default: `data/vertex_residue`)
+- `PPI_DATA_ROOT` (dataset root)
+- `PPI_EMB_DIR` (pretrained embedding dir)
+- `PPI_OUTPUTS_DIR` (outputs root)
+- `PPI_VERTEX_RESIDUE_DIR` (vertex-residue mapping dir)
 
 ## Data expectations
-`data/DeepPPIPS/` should contain (external, not committed):
+`${PPI_DATA_ROOT}/` should contain (external, not committed):
 - `labeled_ply_train/`
 - `labeled_ply_test/`
 - (optional) `ply_temp/`, `ply_temp_right_residue/`
 
-If using pretrained embeddings, place `*.npy` in `data/embeddings/` (external, not committed).
+If using pretrained embeddings, place `*.npy` in `${PPI_EMB_DIR}/` (external, not committed).
 
 ## Training
 Base (no pretrain):
@@ -38,11 +38,11 @@ python scripts/train_pretrain.py
 Pretrained version:
 ```
 python scripts/infer_pretrain.py \
-  --ckpt outputs/runs/binary_dgcnn_pretrain/DeepPPIPS/<run>/best.pt \
-  --input data/DeepPPIPS/labeled_ply_test \
-  --output outputs/infer_pretrain \
-  --stats outputs/runs/binary_dgcnn_pretrain/DeepPPIPS/stats.json \
-  --pre-emb-dir data/embeddings \
+  --ckpt ${PPI_OUTPUTS_DIR}/runs/binary_dgcnn_pretrain/<dataset>/<run>/best.pt \
+  --input ${PPI_DATA_ROOT}/labeled_ply_test \
+  --output ${PPI_OUTPUTS_DIR}/infer_pretrain \
+  --stats ${PPI_OUTPUTS_DIR}/runs/binary_dgcnn_pretrain/<dataset>/stats.json \
+  --pre-emb-dir ${PPI_EMB_DIR} \
   --pre-dim 1280 \
   --pre-fusion concat
 ```
@@ -50,23 +50,23 @@ python scripts/infer_pretrain.py \
 Base version:
 ```
 python scripts/infer_base.py \
-  --ckpt outputs/runs/binary_dgcnn/DeepPPIPS/<run>/best.pt \
-  --input data/DeepPPIPS/labeled_ply_test \
-  --output outputs/infer_base \
-  --stats outputs/runs/binary_dgcnn/DeepPPIPS/stats.json
+  --ckpt ${PPI_OUTPUTS_DIR}/runs/binary_dgcnn/<dataset>/<run>/best.pt \
+  --input ${PPI_DATA_ROOT}/labeled_ply_test \
+  --output ${PPI_OUTPUTS_DIR}/infer_base \
+  --stats ${PPI_OUTPUTS_DIR}/runs/binary_dgcnn/<dataset>/stats.json
 ```
 
 ## Evaluation
 Point-level evaluation:
 ```
-python scripts/eval/eval_ply.py outputs/infer_pretrain outputs/results_eval --plot
+python scripts/eval/eval_ply.py ${PPI_OUTPUTS_DIR}/infer_pretrain ${PPI_OUTPUTS_DIR}/results_eval --plot
 ```
 
 Residue-level evaluation:
 ```
-python scripts/eval/ply_residue_stats.py outputs/infer_pretrain outputs/residue_csvs
-python scripts/eval/eval_residue.py outputs/residue_csvs outputs/residue_eval --plot
+python scripts/eval/ply_residue_stats.py ${PPI_OUTPUTS_DIR}/infer_pretrain ${PPI_OUTPUTS_DIR}/residue_csvs
+python scripts/eval/eval_residue.py ${PPI_OUTPUTS_DIR}/residue_csvs ${PPI_OUTPUTS_DIR}/residue_eval --plot
 ```
 
 ## Notes
-- Outputs are written under `outputs/` by default (external, not committed).
+- Outputs are written under `${PPI_OUTPUTS_DIR}/` by default (external, not committed).

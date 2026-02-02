@@ -13,7 +13,7 @@ python -m pip install -r requirements.txt
 ### 2) Set data root
 
 ```bash
-export PSMA_DATA_ROOT=/inspurfs/group/gaoshh/chenqy/pro_rna
+export PSMA_DATA_ROOT=/path/to/psma_data_root
 ```
 
 ### 2.5) (Optional) Download pretrain dataset

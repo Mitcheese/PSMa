@@ -13,6 +13,6 @@
 
 source activate pro_rna
 
-export PSMA_DATA_ROOT=/inspurfs/group/gaoshh/chenqy/pro_rna
+export PSMA_DATA_ROOT=/path/to/psma_data_root
 
 python -m psma_pretrain.cli --config configs/pretrain_base.yaml --exp_name instant_embed_60_ratio_base

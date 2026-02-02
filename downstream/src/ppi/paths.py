@@ -38,7 +38,7 @@ def _get_path(key: str, env_key: str, default_rel: str) -> Path:
 
 def get_data_root() -> Path:
     """Default dataset root used by training scripts."""
-    return _get_path("data_root", "PPI_DATA_ROOT", "data/DeepPPIPS")
+    return _get_path("data_root", "PPI_DATA_ROOT", "data/dataset")
 
 
 def get_embedding_dir() -> Path:

@@ -18,5 +18,5 @@ def main():
 
 
 if __name__ == "__main__":
-    os.environ.setdefault("PSMA_DATA_ROOT", "/inspurfs/group/gaoshh/chenqy/pro_rna")
+    os.environ.setdefault("PSMA_DATA_ROOT", "data")
     main()
