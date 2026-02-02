@@ -37,8 +37,8 @@ yarn-error.log*
 *.log
 
 # Data / Models (adjust as needed)
-data/
-datasets/
+# data/
+# datasets/
 *.pt
 *.pth
 *.ckpt

@@ -6,8 +6,7 @@ This repository trains and evaluates protein-protein interaction (PPI) binary se
 - `scripts/` executable entry points (train / infer / eval / preprocess / viz)
 - `src/` shared utilities (path config helpers)
 - `configs/` path configuration
-- `data/` datasets and large artifacts (not tracked in this repo)
-- `outputs/` runs, results, plots, logs (not tracked in this repo)
+- `data/` contains protein sequences
 
 ## Path configuration
 Default paths are defined in `configs/paths.json`. You can override with environment variables:

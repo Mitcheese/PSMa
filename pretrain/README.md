@@ -16,6 +16,16 @@ python -m pip install -r requirements.txt
 export PSMA_DATA_ROOT=/inspurfs/group/gaoshh/chenqy/pro_rna
 ```
 
+### 2.5) (Optional) Download pretrain dataset
+
+You can use `scripts/mirror_pdb_text.sh` to download the pretraining dataset.
+Note: the pretraining dataset is very large, so make sure you have ample disk space and quota before running.
+
+```bash
+chmod +x scripts/mirror_pdb_text.sh
+./scripts/mirror_pdb_text.sh /path/to/large_disk/pdb_text_archive
+```
+
 ### 3) Pretrain
 
 ```bash

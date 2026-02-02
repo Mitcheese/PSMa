@@ -1,3 +1,195 @@
+# -*- coding: utf-8 -*-
+# === Auto-generated "pretrain_vs_nopretrain_1x3_modified.py" ===
+# Enhancements added before original code:
+#  1) Larger fonts via rcParams (tunable by env PS_FONT_SCALE, default 1.25)
+#  2) Avoid label/line collisions on panel 1 (axes[0]) by offsetting data-text labels
+#     and adding a semi-transparent white box + stroke.
+#  3) Avoid overlapping top info boxes on panel 3 (axes[2]) by staggering upper texts.
+#  4) Thicker ticks/spines; tight layout.
+#
+# Usage:
+#   PS_FONT_SCALE=1.35 python pretrain_vs_nopretrain_1x3_modified.py ...
+#
+import os, math, traceback
+import matplotlib
+import matplotlib.pyplot as plt
+from matplotlib.figure import Figure as _Figure
+import matplotlib.patheffects as _pe
+
+# -------------- Global font scaling --------------
+try:
+    SCALE = float(os.getenv("PS_FONT_SCALE", "1.25"))
+except Exception:
+    SCALE = 1.25
+
+# plt.rcParams.update({
+#     "font.size":        12,
+#     "axes.titlesize":   14 * SCALE,
+#     "axes.labelsize":   13 * SCALE,
+#     "xtick.labelsize":  12 * SCALE,
+#     "ytick.labelsize":  12 * SCALE,
+#     "legend.fontsize":  12 * SCALE,
+# })
+# ==== MINIMAL PATCH v2 (replace previous function) ====
+def _apply_minimal_patch(fig):
+    import matplotlib.pyplot as plt
+
+    axes = fig.get_axes()
+
+    # 1) First panel: remove "with_pretrain: epoch 19" / "without_pretrain: epoch 36"
+    if len(axes) >= 1:
+        ax = axes[0]
+        for t in list(ax.texts):
+            s = t.get_text().strip().lower()
+            if "epoch" in s and ("with_pretrain" in s or "without_pretrain" in s):
+                t.remove()
+
+    # 2) Second panel: cap y to ~0.6; move inset to lower-right
+    if len(axes) >= 2:
+        ax = axes[1]
+        try:
+            ymin, ymax = ax.get_ylim()
+        except Exception:
+            ymin, ymax = 0.0, 1.0
+        ax.set_ylim(bottom=min(0.0, ymin), top=0.6)  # set top=0.55 if needed
+
+        box_text = (
+            "F1@0.5 w/=0.393, w/o=0.345\n"
+            "MCC@0.5 w/=0.298, w/o=0.238"
+        )
+
+        moved = False
+        for t in ax.texts:
+            s = t.get_text()
+            if ("F1@0.5" in s) or ("MCC@0.5" in s):
+                # lower-right
+                t.set_text(box_text)
+                t.set_transform(ax.transAxes)
+                t.set_position((0.98, 0.02))
+                t.set_ha("right"); t.set_va("bottom")
+                t.set_bbox(dict(fc="white", ec="lightgray", alpha=0.85, pad=0.4))
+                moved = True
+        if not moved:
+            ax.text(0.98, 0.02, box_text, transform=ax.transAxes,
+                    ha="right", va="bottom",
+                    bbox=dict(fc="white", ec="lightgray", alpha=0.85, pad=0.4))
+
+    # 3) Third panel: cap y to ~3.5; move inset to mid-lower near x-axis
+    if len(axes) >= 3:
+        ax = axes[2]
+        try:
+            ymin, ymax = ax.get_ylim()
+        except Exception:
+            ymin, ymax = 0.0, 1.0
+        ax.set_ylim(bottom=ymin, top=3.2)
+
+        target_pos = (0.60, 0.01)  # mid-lower near x-axis; lower if needed
+        moved = False
+
+        # Prefer moving legend containing "KS"; otherwise move top-left legend
+        for t in ax.texts:
+            if t.get_text().strip().startswith("KS"):
+                t.set_transform(ax.transAxes)
+                t.set_position(target_pos)
+                t.set_ha("center"); t.set_va("bottom")
+                t.set_bbox(dict(fc="white", ec="lightgray", alpha=0.85, pad=0.4))
+                moved = True
+                break
+        if not moved:
+            for t in ax.texts:
+                if t.get_transform() is ax.transAxes:
+                    x, y = t.get_position()
+                    if (y >= 0.85) and (x <= 0.35):  # top-left region
+                        t.set_position(target_pos)
+                        t.set_ha("center"); t.set_va("bottom")
+                        t.set_bbox(dict(fc="white", ec="lightgray", alpha=0.85, pad=0.4))
+                        break
+# ==== MINIMAL PATCH v2 END ====
+
+def _ps_offset_collision_labels(ax, inflate_top=0.08):
+    """Offset data-coordinate texts with bbox + stroke; add headroom."""
+    try:
+        texts = list(ax.texts)
+        if not texts:
+            return
+        xmin, xmax = ax.get_xlim(); ymin, ymax = ax.get_ylim()
+        dx = 0.015 * (xmax - xmin)
+        dy = 0.015 * (ymax - ymin)
+        shifts = [(1,1),(1,-1),(-1,1),(-1,-1)]
+        idx = 0; changed = False
+        for t in texts:
+            if t.get_transform() is ax.transData:
+                x, y = t.get_position()
+                sx, sy = shifts[idx % 4]; idx += 1
+                t.set_position((x + sx*dx, y + sy*dy))
+                t.set_bbox(dict(fc="white", ec="none", alpha=0.65, pad=0.6))
+                t.set_path_effects([_pe.Stroke(linewidth=2.2, foreground="white"), _pe.Normal()])
+                t.set_zorder(10)
+                changed = True
+        if changed:
+            ax.set_ylim(ymin, ymax + inflate_top*(ymax - ymin))
+    except Exception:
+        print("[WARN] _ps_offset_collision_labels failed:"); traceback.print_exc()
+
+def _ps_stagger_top_boxes(ax, top_y=0.98, second_y=0.80, alpha=0.85, inflate_top=0.06):
+    """Stagger texts in axes coords near the top to avoid overlaps; add headroom."""
+    try:
+        top_texts = []
+        for t in list(ax.texts):
+            if t.get_transform() is ax.transAxes:
+                x, y = t.get_position()
+                if isinstance(x, (int,float)) and isinstance(y, (int,float)) and y >= 0.85:
+                    top_texts.append(t)
+        if len(top_texts) >= 2:
+            top_texts.sort(key=lambda tt: tt.get_position()[0])
+            ys = [top_y, second_y, 0.72, 0.64]
+            for i, t in enumerate(top_texts):
+                x, _ = t.get_position()
+                ny = ys[i] if i < len(ys) else max(0.10, second_y - 0.10*(i-1))
+                t.set_position((x, ny))
+                bbox = t.get_bbox_patch()
+                if bbox is None:
+                    t.set_bbox(dict(fc="white", ec="lightgray", alpha=alpha, pad=0.4))
+                else:
+                    bbox.set_alpha(alpha)
+            ymin, ymax = ax.get_ylim()
+            ax.set_ylim(ymin, ymax + inflate_top*(ymax - ymin))
+    except Exception:
+        print("[WARN] _ps_stagger_top_boxes failed:"); traceback.print_exc()
+
+def _ps_thicken_axes(fig):
+    try:
+        for ax in fig.get_axes():
+            ax.tick_params(axis="both", which="major", length=6, width=1.2)
+            ax.tick_params(axis="both", which="minor", length=3, width=1.0)
+            for spine in ax.spines.values():
+                spine.set_linewidth(1.2)
+    except Exception:
+        pass
+
+def _ps_refine_layout(fig=None):
+    try:
+        if fig is None: fig = plt.gcf()
+        axes = fig.get_axes()
+        if axes:
+            if len(axes) >= 1: _ps_offset_collision_labels(axes[0], inflate_top=0.08)
+            if len(axes) >= 3: _ps_stagger_top_boxes(axes[2], top_y=0.98, second_y=0.80, alpha=0.85, inflate_top=0.06)
+        _ps_thicken_axes(fig)
+        try: fig.tight_layout()
+        except Exception: pass
+    except Exception:
+        print("[WARN] _ps_refine_layout failed:"); traceback.print_exc()
+
+# Monkey-patch savefig so refinement runs automatically
+__PS_ORIG_SAVEFIG = _Figure.savefig
+def __PS_HOOKED_SAVEFIG(self, *args, **kwargs):
+    try: _ps_refine_layout(self)
+    except Exception as _e: print("[WARN] refine failed:", _e)
+    return __PS_ORIG_SAVEFIG(self, *args, **kwargs)
+_Figure.savefig = __PS_HOOKED_SAVEFIG
+
+# ---- ORIGINAL SCRIPT FOLLOWS ----
+
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
@@ -5,7 +197,6 @@ Generate a 1×3 figure comparing models with and without pretraining.
 (a) Convergence (Time-to-Target MCC)
 (b) Threshold Sensitivity (F1 & MCC vs. Threshold)
 (c) Score Separation (Pos/Neg Distributions, KS)
-
 """
 
 import argparse
@@ -15,16 +206,6 @@ import pandas as pd
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-
-SCALE = 1.25
-plt.rcParams.update({
-    "font.size":        12 * SCALE,  # base font
-    "axes.titlesize":   14 * SCALE,  # subplot title
-    "axes.labelsize":   13 * SCALE,  # axis label
-    "xtick.labelsize":  12 * SCALE,  # x tick
-    "ytick.labelsize":  12 * SCALE,  # y tick
-    "legend.fontsize":  12 * SCALE,  # legend
-})
 
 BLUE = "#1f77b4"
 ORANGE = "#ff7f0e"
@@ -203,6 +384,7 @@ def main():
     plt.tight_layout()
     png_path = f"{args.out_prefix}_1x3.png"
     pdf_path = f"{args.out_prefix}_1x3.pdf"
+    _apply_minimal_patch(plt.gcf())
     fig.savefig(png_path, bbox_inches="tight")
     fig.savefig(pdf_path, bbox_inches="tight")
     print(f"Saved figure to: {png_path} and {pdf_path}")

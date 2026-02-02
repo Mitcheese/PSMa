@@ -17,10 +17,13 @@
   - `scripts/preprocess/ply_check_missing.py`
   - `scripts/preprocess/pdbply_process.py`
   - `scripts/preprocess/pdb_dl.py`
-- `scripts/preprocess/check_struct_confidence.py`
+  - `scripts/preprocess/check_struct_confidence.py`
 
 ## Visualization
-- `scripts/viz/*.py`
+- `scripts/viz/compare_2x2.py`
+- `scripts/viz/pretrain_vs_nopretrain_1x3.py`
+- `scripts/viz/pretrain_vs_nopretrain_2x2.py`
+- `scripts/viz/roc_by_length_bins.py`
 
 ## Tools
 - `scripts/tools/remap_ckpt_keys.py`
@@ -30,12 +33,9 @@
 - `src/ppi/paths.py`: path resolution from config/env
 
 ## Data layout
-- `data/DeepPPIPS/`: dataset PLYs
-- `data/embeddings/`: pretrained global embeddings
-- `data/vertex_residue/`: residue mapping JSONs
-- `data/interim/preprocess/`: preprocessing intermediates
+- `data/` contains small metadata files tracked in this repo.
 
-## Outputs
+## Outputs (external)
 - `outputs/runs/`: training runs
 - `outputs/results/`: evaluation outputs
 - `outputs/visualize/`: figures and colored PLYs

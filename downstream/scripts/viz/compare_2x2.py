@@ -37,6 +37,16 @@ import pandas as pd
 import matplotlib
 matplotlib.use("Agg")  # headless
 import matplotlib.pyplot as plt
+# Increase global font sizes a bit
+plt.rcParams.update({
+    'font.size': 12,
+    'axes.titlesize': 14,
+    'axes.labelsize': 13,
+    'xtick.labelsize': 12,
+    'ytick.labelsize': 12,
+    'legend.fontsize': 11,
+})
+
 
 # Optional: Wilcoxon signed-rank test
 try:
@@ -164,6 +174,35 @@ def main():
     curve_auprc_a = threshold_curve(auprc_a, grid_auprc)
     curve_auprc_b = threshold_curve(auprc_b, grid_auprc)
 
+
+    # Determine colors for models: Pretrain -> blue; Ensem -> orange-yellow
+    def _role_from_name(name: str) -> str:
+        n = (name or "").lower()
+        # Treat PSMa as the "pretrain" group
+        if any(k in n for k in ["psma", "pretrain", "with_pretrain", "pre-train", "w/ pretrain"]):
+            return "psma"
+        if "ensem" in n:
+            return "ensem"
+        return ""
+
+    def _pretty_model_name(raw: str) -> str:
+        r = _role_from_name(raw)
+        if r == "psma":
+            return "PSMa"
+        if r == "ensem":
+            return "Ensem"
+        return raw or ""
+
+    COLOR_PSMa  = "#1f77b4"  # blue
+    COLOR_ENSEM = "#FFA500"  # orange
+
+    role_a = _role_from_name(args.name_a)
+    role_b = _role_from_name(args.name_b)
+    col_a  = COLOR_PSMa  if role_a == "psma"  else (COLOR_ENSEM if role_a == "ensem" else None)
+    col_b  = COLOR_PSMa  if role_b == "psma"  else (COLOR_ENSEM if role_b == "ensem" else None)
+    name_a = _pretty_model_name(args.name_a)
+    name_b = _pretty_model_name(args.name_b)
+
     # Figure
     fig, axes = plt.subplots(2, 2, figsize=(12, 10))
     axA, axB, axC, axD = axes.ravel()
@@ -176,9 +215,9 @@ def main():
     axA.set_xlabel(f"{args.name_a} AUROC")
     axA.set_ylabel(f"{args.name_b} AUROC")
     axA.set_title("A. Pairwise AUROC")
-    axA.text(0.02, 0.98, f"win {wtl_auc['win_rate']*100:.1f}% | tie {wtl_auc['tie_rate']*100:.1f}%\n"
+    axA.text(0.98, 0.02, f"win {wtl_auc['win_rate']*100:.1f}% | tie {wtl_auc['tie_rate']*100:.1f}%\n"
                          f"Δ mean {sm_auc['mean']:.3f}, median {sm_auc['median']:.3f}",
-              transform=axA.transAxes, ha="left", va="top", fontsize=9,
+              transform=axA.transAxes, ha="right", va="bottom", fontsize=11,
               bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="lightgray"))
 
     # Panel B: AUPRC scatter
@@ -188,9 +227,9 @@ def main():
     axB.set_xlabel(f"{args.name_a} AUPRC")
     axB.set_ylabel(f"{args.name_b} AUPRC")
     axB.set_title("B. Pairwise AUPRC")
-    axB.text(0.02, 0.98, f"win {wtl_auprc['win_rate']*100:.1f}% | tie {wtl_auprc['tie_rate']*100:.1f}%\n"
+    axB.text(0.98, 0.02, f"win {wtl_auprc['win_rate']*100:.1f}% | tie {wtl_auprc['tie_rate']*100:.1f}%\n"
                          f"Δ mean {sm_auprc['mean']:.3f}, median {sm_auprc['median']:.3f}",
-              transform=axB.transAxes, ha="left", va="top", fontsize=9,
+              transform=axB.transAxes, ha="right", va="bottom", fontsize=11,
               bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="lightgray"))
 
     # Panel C: Delta distributions
@@ -245,16 +284,24 @@ def main():
     axC.set_title("C. Delta distributions")
 
     # Panel D: Threshold-win curves
-    axD.plot(grid_auc, curve_auc_a, label=f"{args.name_a} AUROC")
-    axD.plot(grid_auc, curve_auc_b, label=f"{args.name_b} AUROC")
-    axD.plot(grid_auprc, curve_auprc_a, ls="--", label=f"{args.name_a} AUPRC")
-    axD.plot(grid_auprc, curve_auprc_b, ls="--", label=f"{args.name_b} AUPRC")
+    axD.plot(grid_auc, curve_auc_a, label=f"{args.name_a} AUROC", color=(col_a or "#4C78A8"), ls="-", lw=2.0)
+    axD.plot(grid_auc, curve_auc_b, label=f"{args.name_b} AUROC", color=(col_b or "#F58518"), ls="-", lw=2.0)
+    axD.plot(grid_auprc, curve_auprc_a, ls="--", label=f"{args.name_a} AUPRC", color=(col_a or "#4C78A8"), lw=2.0)
+    axD.plot(grid_auprc, curve_auprc_b, ls="--", label=f"{args.name_b} AUPRC", color=(col_b or "#F58518"), lw=2.0)
     axD.set_xlim(min(grid_auc.min(), grid_auprc.min()), max(grid_auc.max(), grid_auprc.max()))
     axD.set_ylim(0, 1)
     axD.set_xlabel("Threshold t")
     axD.set_ylabel("Proportion > t")
     axD.set_title("D. Threshold-win curves")
-    axD.legend(loc="upper right", fontsize=9)
+    handles, labels = axD.get_legend_handles_labels()
+    if handles:
+        axD.legend(
+            handles, labels,
+            loc="lower left",                 # lower left
+            bbox_to_anchor=(0.02, 0.02),      # slight inset
+            frameon=True, framealpha=0.90,    # white background alpha
+            borderpad=0.4
+        )
 
     if args.title:
         fig.suptitle(args.title, y=0.995, fontsize=13)
